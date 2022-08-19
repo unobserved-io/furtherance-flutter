@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:furtherance/routes/fur_home.dart';
 import 'package:furtherance/routes/fur_task_group.dart';
+import 'package:furtherance/routes/styles.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
       title: 'Furtherance',
       theme: ThemeData(
         colorScheme: const ColorScheme.light(
-          primary: Colors.white,
+          primary: furPurple,
           onPrimary: Colors.black,
           secondary: Color(0xFFB179F1),
           onSecondary: Colors.white,

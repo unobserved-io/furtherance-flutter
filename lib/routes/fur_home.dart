@@ -135,8 +135,8 @@ class _FurHomeState extends State<FurHome> {
                                   startStop();
                                 });
                               },
-                              onChanged: (val) {
-                                timerHelper.nameAndTags = val;
+                              onChanged: (text) {
+                                timerHelper.nameAndTags = text;
                               },
                               style: const TextStyle(
                                 fontSize: 14.0,
@@ -213,14 +213,14 @@ class _FurHomeState extends State<FurHome> {
               MaterialPageRoute(
                   builder: (context) => FurTaskGroup(idList: task.idsWithin)
               ),
-            );
+            ).then((value) => refreshDatabase());
           } else {
             Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (context) => FurTaskEdit(id: task.idsWithin[0])
               ),
-            );
+            ).then((value) => refreshDatabase());
           }
         },
         child: ListTile(

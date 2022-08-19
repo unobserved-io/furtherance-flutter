@@ -97,6 +97,27 @@ class DatabaseHelper {
     return allTheseIds;
   }
 
+  Future updateGroupTitle(String newTitle, List<int> idList) async {
+    final Database db = await getDatabaseConnect();
+    for (int id in idList) {
+      await db.rawQuery("""UPDATE $tableName SET $columnTaskName = '$newTitle' WHERE $columnId = '$id'""");
+    }
+  }
+
+  Future updateGroupTags(String newTags, List<int> idList) async {
+    final Database db = await getDatabaseConnect();
+    for (int id in idList) {
+      await db.rawQuery("""UPDATE $tableName SET $columnTags = '$newTags' WHERE $columnId = '$id'""");
+    }
+  }
+
+  Future deleteGroup(List<int> idList) async {
+    final Database db = await getDatabaseConnect();
+    for (int id in idList) {
+      await db.delete(tableName, where: '$columnId = ?', whereArgs: [id]);
+    }
+  }
+
   String _toRfc3339String(DateTime dateTime) {
     // TODO Add timezones when Flutter makes them available
     final DateFormat formatter = DateFormat('yyyy-MM-ddTHH:mm:ss+00:00');
