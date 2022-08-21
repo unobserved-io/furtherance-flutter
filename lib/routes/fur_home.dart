@@ -19,6 +19,8 @@ class FurHome extends StatefulWidget {
 }
 
 class _FurHomeState extends State<FurHome> {
+  final fieldText = TextEditingController();
+  DatabaseHelper databaseHelper = DatabaseHelper();
   static const startIcon = Icon(
     Icons.play_arrow_rounded,
     color: furPurple,
@@ -33,12 +35,13 @@ class _FurHomeState extends State<FurHome> {
 
   final _stopWatchTimer = StopWatchTimer();
   TimerHelper timerHelper = TimerHelper();
+  bool taskEntryEnabled = true;
 
   // List<FurTask> _allTasks = [];
   List<FurTaskDisplay> _allDisplayTasks = [];
 
   void refreshDatabase() async {
-    List<FurTask> newTaskList = await DatabaseHelper().retrieve();
+    List<FurTask> newTaskList = await databaseHelper.retrieve();
     FurCombinedTaskList furCombinedTaskList = FurCombinedTaskList(newTaskList);
     setState(() {
       _allDisplayTasks = furCombinedTaskList.orgList;
@@ -51,12 +54,17 @@ class _FurHomeState extends State<FurHome> {
       _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
       timerHelper.stopTimer();
       startStopIcon = startIcon;
+      fieldText.clear();
+      FocusManager.instance.primaryFocus?.unfocus();
+      taskEntryEnabled = true;
       refreshDatabase();
     } else {
       if (timerHelper.nameAndTags.isNotEmpty) {
         _stopWatchTimer.onExecute.add(StopWatchExecute.start);
         timerHelper.startTimer();
         startStopIcon = stopIcon;
+        FocusManager.instance.primaryFocus?.unfocus();
+        taskEntryEnabled = false;
       }
     }
   }
@@ -155,6 +163,8 @@ class _FurHomeState extends State<FurHome> {
                                 isDense: true,
                                 contentPadding: EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 8.0)
                               ),
+                              controller: fieldText,
+                              enabled: taskEntryEnabled,
                             ),
                           ),
                         ),
@@ -218,7 +228,7 @@ class _FurHomeState extends State<FurHome> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => FurTaskEdit(id: task.idsWithin[0])
+                  builder: (context) => FurTaskEdit(id: task.idsWithin[0]) //TODO
               ),
             ).then((value) => refreshDatabase());
           }

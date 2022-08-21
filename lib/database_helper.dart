@@ -97,6 +97,21 @@ class DatabaseHelper {
     return allTheseIds;
   }
 
+  Future<FurTask> getById(int id) async {
+    final Database db = await getDatabaseConnect();
+    final query = await db.query(tableName,
+        where: '$columnId = ?',
+        whereArgs: [id]);
+
+    return FurTask(
+      query[0][columnId] as int,
+      query[0][columnTaskName] as String,
+      query[0][columnStartTime] as String,
+      query[0][columnStopTime] as String,
+      query[0][columnTags] as String,
+    );
+  }
+
   Future updateGroupTitle(String newTitle, List<int> idList) async {
     final Database db = await getDatabaseConnect();
     for (int id in idList) {
@@ -109,6 +124,33 @@ class DatabaseHelper {
     for (int id in idList) {
       await db.rawQuery("""UPDATE $tableName SET $columnTags = '$newTags' WHERE $columnId = '$id'""");
     }
+  }
+
+  Future updateTitle(String newTitle, int id) async {
+    final Database db = await getDatabaseConnect();
+    await db.rawQuery("""UPDATE $tableName SET $columnTaskName = '$newTitle' WHERE $columnId = '$id'""");
+  }
+
+  Future updateTags(String newTags, int id) async {
+    final Database db = await getDatabaseConnect();
+    await db.rawQuery("""UPDATE $tableName SET $columnTags = '$newTags' WHERE $columnId = '$id'""");
+  }
+
+  Future updateStart(DateTime start, int id) async {
+    final Database db = await getDatabaseConnect();
+    String startString = _toRfc3339String(start);
+    await db.rawQuery("""UPDATE $tableName SET $columnStartTime = '$startString' WHERE $columnId = '$id'""");
+  }
+
+  Future updateStop(DateTime stop, int id) async {
+    final Database db = await getDatabaseConnect();
+    String startString = _toRfc3339String(stop);
+    await db.rawQuery("""UPDATE $tableName SET $columnStopTime = '$startString' WHERE $columnId = '$id'""");
+  }
+
+  Future deleteTask(int id) async {
+    final Database db = await getDatabaseConnect();
+    await db.delete(tableName, where: '$columnId = ?', whereArgs: [id]);
   }
 
   Future deleteGroup(List<int> idList) async {

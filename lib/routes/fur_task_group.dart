@@ -82,6 +82,37 @@ class _FurTaskGroupState extends State<FurTaskGroup> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Edit Task',
+        ),
+        actions: [
+          IconButton(
+            onPressed: () => showDialog<String>(
+              context: context,
+              builder: (BuildContext context) => AlertDialog(
+                title: const Text('Delete All?'),
+                content: const Text('Are you sure you want to delete every task listed here?'),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('CANCEL'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      databaseHelper.deleteGroup(widget.idList);
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                    },
+                    child: const Text('DELETE'),
+                  ),
+                ],
+              ),
+            ),
+            icon: const Icon(Icons.delete_forever),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -234,7 +265,8 @@ class _FurTaskGroupState extends State<FurTaskGroup> {
                                       newTagsUnedited = text;
                                     },
                                     decoration: InputDecoration(
-                                        labelText: 'Tags', hintText: _allGroupTasks[0].tags
+                                        labelText: 'Tags',
+                                        hintText: _allGroupTasks[0].tags != '#' ? _allGroupTasks[0].tags : '#add #tags',
                                     ),
                                   ),
                                   const SizedBox(
@@ -413,32 +445,6 @@ class _FurTaskGroupState extends State<FurTaskGroup> {
               ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => showDialog<String>(
-          context: context,
-          builder: (BuildContext context) => AlertDialog(
-            title: const Text('Delete All?'),
-            content: const Text('Are you sure you want to delete every task listed here?'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  databaseHelper.deleteGroup(widget.idList);
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        ),
-        icon: const Icon(Icons.delete_forever),
-        label: const Text("DELETE ALL"),
-        backgroundColor: Colors.red,
       ),
     );
   }
