@@ -4,6 +4,7 @@ import 'package:furtherance/fur_combined_task_list.dart';
 import 'package:furtherance/fur_task.dart';
 import 'package:furtherance/fur_task_display.dart';
 import 'package:furtherance/routes/fur_new_task.dart';
+import 'package:furtherance/routes/fur_report.dart';
 import 'package:furtherance/routes/fur_task_group.dart';
 import 'styles.dart';
 import 'package:furtherance/timer_helper.dart';
@@ -124,6 +125,21 @@ class _FurHomeState extends State<FurHome> {
                   ),
                   color: Colors.black,
                 ),
+                IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const FurReport()
+                      ),
+                    ).then((value) => refreshDatabase());
+                  },
+                  icon: const Icon(
+                    Icons.list,
+                    size: 30.0,
+                  ),
+                  color: Colors.black,
+                ),
               ],
             ),
             Container(
@@ -190,16 +206,16 @@ class _FurHomeState extends State<FurHome> {
                               decoration: TextDecoration.none,
                             ),
                             decoration: const InputDecoration(
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(5.0),
-                                  ),
-                                  borderSide: BorderSide.none,
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(5.0),
                                 ),
-                                isDense: true,
-                                contentPadding: EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 8.0)
+                                borderSide: BorderSide.none,
+                              ),
+                              isDense: true,
+                              contentPadding: EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 8.0)
                             ),
                             controller: fieldText,
                             enabled: taskEntryEnabled,
@@ -211,7 +227,9 @@ class _FurHomeState extends State<FurHome> {
                             minWidth: 50.0,
                           ),
                           onPressed: () {
-
+                            setState(() {
+                              startStop();
+                            });
                           },
                           icon: startStopIcon,
                         )
@@ -279,7 +297,7 @@ class _FurHomeState extends State<FurHome> {
           contentPadding:
           const EdgeInsets.symmetric(horizontal: 20.0, vertical: 0.0),
           title: Text(task.name),
-          subtitle: task.tags == '#' ? null : Text(task.tags),
+          subtitle: task.tags.isEmpty ? null : Text(task.tags),
           trailing: Text(
             task.totalTime,
             // TODO add repeat button? Or should that be a swipe?

@@ -224,7 +224,7 @@ class _FurTaskGroupState extends State<FurTaskGroup> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Show tags if there are some, otherwise show "Add tags" so user can still add some to the group
-                if (_allGroupTasks.isNotEmpty && _allGroupTasks[0].tags != '#') ...[
+                if (_allGroupTasks.isNotEmpty && _allGroupTasks[0].tags.isNotEmpty) ...[
                   Text(
                     _allGroupTasks[0].tags,
                     style: const TextStyle(
@@ -266,7 +266,7 @@ class _FurTaskGroupState extends State<FurTaskGroup> {
                                     },
                                     decoration: InputDecoration(
                                         labelText: 'Tags',
-                                        hintText: _allGroupTasks[0].tags != '#' ? _allGroupTasks[0].tags : '#add #tags',
+                                        hintText: _allGroupTasks[0].tags.isNotEmpty ? _allGroupTasks[0].tags : '#add #tags',
                                     ),
                                   ),
                                   const SizedBox(

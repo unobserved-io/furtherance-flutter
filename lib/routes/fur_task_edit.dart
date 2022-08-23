@@ -243,7 +243,7 @@ class _FurTaskEditState extends State<FurTaskEdit> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Show tags if there are some, otherwise show "Add tags" so user can still add some to the group
-                if (task.tags != '#') ...[
+                if (task.tags.isNotEmpty) ...[
                   Text(
                     task.tags,
                     style: const TextStyle(

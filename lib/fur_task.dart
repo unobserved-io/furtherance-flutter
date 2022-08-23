@@ -11,7 +11,11 @@ class FurTask {
   FurTask(this.id, this.name, String startTime, String stopTime, String tags) {
     this.startTime = DateTime.parse(startTime);
     this.stopTime = DateTime.parse(stopTime);
-    this.tags = '#$tags';
+    if (tags.isNotEmpty) {
+      this.tags = '#$tags';
+    } else {
+      this.tags = '';
+    }
 
     Duration timeDifference = this.stopTime.difference(this.startTime);
     totalTime = durationToString(timeDifference.inSeconds);
