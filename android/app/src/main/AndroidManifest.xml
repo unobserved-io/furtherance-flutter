@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.livaliva.furtherance">
    <application
-        android:label="furtherance"
+        android:label="Furtherance"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

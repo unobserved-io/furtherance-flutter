@@ -73,6 +73,104 @@ class _FurTaskGroupState extends State<FurTaskGroup> {
     }
   }
 
+  _getChildren() {
+    List<Widget> groupContent = [];
+
+    for (FurTask task in _allGroupTasks) {
+      groupContent.add(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.grey,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              margin: const EdgeInsets.all(5.0),
+              padding: const EdgeInsets.symmetric(
+                  vertical: 5.0, horizontal: 10.0),
+              child: Text(
+                timeFormatter.format(task.startTime),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18.0,
+                ),
+              ),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.grey,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              margin: const EdgeInsets.all(5.0),
+              padding: const EdgeInsets.symmetric(
+                  vertical: 5.0, horizontal: 10.0),
+              child: Text(
+                timeFormatter.format(task.stopTime),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18.0,
+                ),
+              ),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: furPurple,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              margin: const EdgeInsets.all(5.0),
+              padding: const EdgeInsets.symmetric(
+                  vertical: 5.0, horizontal: 10.0),
+              child: Text(
+                task.totalTime,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18.0,
+                ),
+              ),
+            ),
+            IconButton(
+              onPressed: () =>
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FurTaskEdit(id: task.id),
+                    ),
+                  ),
+              icon: const Icon(Icons.edit),
+            ),
+          ],
+        ),
+      );
+    }
+    return groupContent;
+  }
+
+  void _onLoading() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              SizedBox(height: 10.0,),
+              CircularProgressIndicator(),
+              SizedBox(height: 10.0,),
+              Text('Deleting...'),
+              SizedBox(height: 10.0,),
+            ],
+          ),
+        );
+      },
+    );
+    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+    Navigator.pop(context);
+    Navigator.pushReplacementNamed(context, 'home_page');
+  }
+
   @override
   void initState() {
     getTasks();
@@ -100,9 +198,9 @@ class _FurTaskGroupState extends State<FurTaskGroup> {
                   ),
                   TextButton(
                     onPressed: () {
+                      Navigator.pop(context);
                       databaseHelper.deleteGroup(widget.idList);
-                      Navigator.pop(context);
-                      Navigator.pop(context);
+                      _onLoading();
                     },
                     child: const Text('DELETE'),
                   ),
@@ -151,6 +249,7 @@ class _FurTaskGroupState extends State<FurTaskGroup> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   TextField(
+                                    textCapitalization: TextCapitalization.sentences,
                                     autofocus: true,
                                     onChanged: (text) {
                                       newTitle = text;
@@ -344,105 +443,79 @@ class _FurTaskGroupState extends State<FurTaskGroup> {
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: const [
-                SizedBox(
-                  width: 1.0,
-                ),
-                Text(
-                  'Start',
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.w500,
+              children: [
+                Container(
+                  width: 90.0,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  margin: const EdgeInsets.all(5.0),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 10.0),
+                  child: const Center(
+                    child: Text(
+                      'Start',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
-                SizedBox(
-                  width: 25.0,
-                ),
-                Text(
-                  'Stop',
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.w500,
+                Container(
+                  width: 90.0,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  margin: const EdgeInsets.all(5.0),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 10.0),
+                  child: const Center(
+                    child: Text(
+                      'Stop',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
-                SizedBox(
-                  width: 23.0,
-                ),
-                Text(
-                  'Total',
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.w500,
+                Container(
+                  width: 80.0,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  margin: const EdgeInsets.all(5.0),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 10.0),
+                  child: const Center(
+                    child: Text(
+                      'Total',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
-                SizedBox(
-                  width: 35.0,
+                IconButton(
+                  onPressed: () {},
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  enableFeedback: false,
+                  icon: const Icon(Icons.edit),
+                  color: Colors.transparent,
                 ),
               ],
             ),
-            const SizedBox(
-              height: 5.0,
-            ),
-            for (FurTask task in _allGroupTasks)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    margin: const EdgeInsets.all(5.0),
-                    padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-                    child: Text(
-                      timeFormatter.format(task.startTime),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18.0,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    margin: const EdgeInsets.all(5.0),
-                    padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-                    child: Text(
-                      timeFormatter.format(task.stopTime),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18.0,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: furPurple,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    margin: const EdgeInsets.all(5.0),
-                    padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-                    child: Text(
-                      task.totalTime,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18.0,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => FurTaskEdit(id: task.id),
-                      ),
-                    ),
-                    icon: const Icon(Icons.edit),
-                  ),
-                ],
+            Expanded(
+              child: ListView(
+                children: _getChildren(),
               ),
+            ),
           ],
         ),
       ),

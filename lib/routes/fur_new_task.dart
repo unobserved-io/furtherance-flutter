@@ -102,6 +102,7 @@ class _FurNewTaskState extends State<FurNewTask> {
               child: Column(
                 children: [
                   TextField(
+                    textCapitalization: TextCapitalization.sentences,
                     onChanged: (text) {
                       newTitle = text;
                     },

@@ -150,14 +150,17 @@ class DatabaseHelper {
 
   Future deleteTask(int id) async {
     final Database db = await getDatabaseConnect();
-    await db.delete(tableName, where: '$columnId = ?', whereArgs: [id]);
+    var res = await db.delete(tableName, where: '$columnId = ?', whereArgs: [id]);
+    return res;
   }
 
   Future deleteGroup(List<int> idList) async {
     final Database db = await getDatabaseConnect();
+    int res = 1;
     for (int id in idList) {
-      await db.delete(tableName, where: '$columnId = ?', whereArgs: [id]);
+      res = await db.delete(tableName, where: '$columnId = ?', whereArgs: [id]);
     }
+    return res;
   }
 
   String _toRfc3339String(DateTime dateTime) {

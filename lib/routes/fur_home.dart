@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:furtherance/database_helper.dart';
 import 'package:furtherance/fur_combined_task_list.dart';
@@ -12,6 +13,7 @@ import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'fur_task_edit.dart';
 import 'package:intl/intl.dart';
+import 'package:swipe_to/swipe_to.dart';
 
 
 class FurHome extends StatefulWidget {
@@ -44,10 +46,20 @@ class _FurHomeState extends State<FurHome> {
   List<FurTaskDisplay> _allDisplayTasks = [];
 
   void refreshDatabase() async {
+    setState(() {
+      _allDisplayTasks.clear();
+    });
     List<FurTask> newTaskList = await databaseHelper.retrieve();
     FurCombinedTaskList furCombinedTaskList = FurCombinedTaskList(newTaskList);
     setState(() {
       _allDisplayTasks = furCombinedTaskList.orgList;
+    });
+  }
+
+  void resetPage() {
+    setState(() {
+      _allDisplayTasks.clear();
+      refreshDatabase();
     });
   }
 
@@ -60,7 +72,7 @@ class _FurHomeState extends State<FurHome> {
       fieldText.clear();
       FocusManager.instance.primaryFocus?.unfocus();
       taskEntryEnabled = true;
-      refreshDatabase();
+      resetPage();
     } else {
       if (timerHelper.nameAndTags.isNotEmpty) {
         _stopWatchTimer.onExecute.add(StopWatchExecute.start);
@@ -91,7 +103,7 @@ class _FurHomeState extends State<FurHome> {
   @override
   void initState() {
     super.initState();
-    refreshDatabase();
+    resetPage();
   }
 
   @override
@@ -117,7 +129,7 @@ class _FurHomeState extends State<FurHome> {
                       MaterialPageRoute(
                           builder: (context) => const FurNewTask()
                       ),
-                    ).then((value) => refreshDatabase());
+                    ).then((value) => resetPage());
                   },
                   icon: const Icon(
                     Icons.add,
@@ -132,7 +144,7 @@ class _FurHomeState extends State<FurHome> {
                       MaterialPageRoute(
                           builder: (context) => const FurReport()
                       ),
-                    ).then((value) => refreshDatabase());
+                    ).then((value) => resetPage());
                   },
                   icon: const Icon(
                     Icons.list,
@@ -191,6 +203,7 @@ class _FurHomeState extends State<FurHome> {
                       children: [
                         Expanded(
                           child: TextField(
+                            textCapitalization: TextCapitalization.sentences,
                             maxLines: 1,
                             onSubmitted: (val) {
                               setState(() {
@@ -255,6 +268,7 @@ class _FurHomeState extends State<FurHome> {
                     ),
                   ),
                 ),
+                stickyHeaderBackgroundColor: const Color(0xFFFAFAFA),
                 itemBuilder: (_, FurTaskDisplay task) => _createItem(context, task),
                 itemComparator: (item1, item2) => item1.stopTime.compareTo(item2.stopTime),
                 useStickyGroupSeparators: true,
@@ -269,41 +283,111 @@ class _FurHomeState extends State<FurHome> {
   }
 
   Widget _createItem(BuildContext ctx, FurTaskDisplay task) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(6.0),
-      ),
-      elevation: 8.0,
-      margin: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 4.0),
-      child: InkWell(
-        onTap: () {
-          if (task.idsWithin.length > 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => FurTaskGroup(idList: task.idsWithin)
+    return SwipeTo(
+      onLeftSwipe: () {
+        showDialog<String>(
+          context: context,
+          builder: (BuildContext context) => AlertDialog(
+            title: const Text('Delete'),
+            content: task.idsWithin.length > 1 ?
+              const Text('Are you sure you want to delete this whole group of tasks?') :
+              const Text('Are you sure you want to delete this task?'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('CANCEL'),
               ),
-            ).then((value) => refreshDatabase());
-          } else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => FurTaskEdit(id: task.idsWithin[0]) //TODO
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  if (task.idsWithin.length > 1) {
+                    var finished = databaseHelper.deleteGroup(task.idsWithin);
+                  } else {
+                    var finished = databaseHelper.deleteTask(task.idsWithin[0]);
+                  }
+                  _onLoading();
+                },
+                child: const Text('DELETE'),
               ),
-            ).then((value) => refreshDatabase());
-          }
-        },
-        child: ListTile(
-          contentPadding:
-          const EdgeInsets.symmetric(horizontal: 20.0, vertical: 0.0),
-          title: Text(task.name),
-          subtitle: task.tags.isEmpty ? null : Text(task.tags),
-          trailing: Text(
-            task.totalTime,
-            // TODO add repeat button? Or should that be a swipe?
+            ],
+          ),
+        );
+      },
+      onRightSwipe: () {
+        fieldText.text = task.fullName;
+        timerHelper.nameAndTags = task.fullName;
+        setState(() {
+          startStop();
+        });
+      },
+      iconOnRightSwipe: Icons.refresh,
+      iconOnLeftSwipe: task.idsWithin.length > 1 ? Icons.delete_forever : Icons.delete,
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(6.0),
+        ),
+        elevation: 8.0,
+        margin: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 4.0),
+        child: InkWell(
+          onTap: () {
+            if (task.idsWithin.length > 1) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => FurTaskGroup(idList: task.idsWithin)
+                ),
+              ).then((value) {
+                setState(() {
+                  _allDisplayTasks.clear();
+                  refreshDatabase();
+                });
+              });
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => FurTaskEdit(id: task.idsWithin[0])
+                ),
+              ).then((value) => resetPage());
+            }
+          },
+          child: ListTile(
+            contentPadding:
+            const EdgeInsets.symmetric(horizontal: 20.0, vertical: 0.0),
+            title: Text(task.name),
+            subtitle: task.tags.isEmpty ? null : Text(task.tags),
+            trailing: Text(
+              task.totalTime,
+            ),
           ),
         ),
       ),
     );
+  }
+
+  void _onLoading() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              SizedBox(height: 10.0,),
+              CircularProgressIndicator(),
+              SizedBox(height: 10.0,),
+              Text('Deleting...'),
+              SizedBox(height: 10.0,),
+            ],
+          ),
+        );
+      },
+    );
+
+    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+    Navigator.pop(context);
+    Navigator.pushReplacementNamed(context, 'home_page');
   }
 }

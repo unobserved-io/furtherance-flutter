@@ -169,6 +169,7 @@ class _FurTaskEditState extends State<FurTaskEdit> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   TextField(
+                                    textCapitalization: TextCapitalization.sentences,
                                     autofocus: true,
                                     onChanged: (text) {
                                       newTitle = text;
