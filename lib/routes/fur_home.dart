@@ -42,6 +42,7 @@ class _FurHomeState extends State<FurHome> {
   TimerHelper timerHelper = TimerHelper();
   bool taskEntryEnabled = true;
 
+
   // List<FurTask> _allTasks = [];
   List<FurTaskDisplay> _allDisplayTasks = [];
 
@@ -84,6 +85,14 @@ class _FurHomeState extends State<FurHome> {
     }
   }
 
+  void timerRunningSnack() {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    var snackBar = const SnackBar(
+        content: Text('Not while the timer is running.'),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   String _dateDisplay(String displayDate) {
     // Remove the year if it matches the current year.
     if (displayDate.substring(displayDate.length - 4) == DateTime.now().year.toString()) {
@@ -124,12 +133,15 @@ class _FurHomeState extends State<FurHome> {
               children: [
                 IconButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const FurNewTask()
-                      ),
-                    ).then((value) => resetPage());
+                    if (_stopWatchTimer.isRunning) {
+                      timerRunningSnack();
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const FurNewTask()),
+                      ).then((value) => resetPage());
+                    }
                   },
                   icon: const Icon(
                     Icons.add,
@@ -139,12 +151,15 @@ class _FurHomeState extends State<FurHome> {
                 ),
                 IconButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const FurReport()
-                      ),
-                    ).then((value) => resetPage());
+                    if (_stopWatchTimer.isRunning) {
+                      timerRunningSnack();
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const FurReport()),
+                      ).then((value) => resetPage());
+                    }
                   },
                   icon: const Icon(
                     Icons.list,
@@ -228,7 +243,8 @@ class _FurHomeState extends State<FurHome> {
                                 borderSide: BorderSide.none,
                               ),
                               isDense: true,
-                              contentPadding: EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 8.0)
+                              contentPadding: EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 8.0),
+                              hintText: 'Task name #tags'
                             ),
                             controller: fieldText,
                             enabled: taskEntryEnabled,
@@ -285,40 +301,50 @@ class _FurHomeState extends State<FurHome> {
   Widget _createItem(BuildContext ctx, FurTaskDisplay task) {
     return SwipeTo(
       onLeftSwipe: () {
-        showDialog<String>(
-          context: context,
-          builder: (BuildContext context) => AlertDialog(
-            title: const Text('Delete'),
-            content: task.idsWithin.length > 1 ?
-              const Text('Are you sure you want to delete this whole group of tasks?') :
-              const Text('Are you sure you want to delete this task?'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('CANCEL'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  if (task.idsWithin.length > 1) {
-                    var finished = databaseHelper.deleteGroup(task.idsWithin);
-                  } else {
-                    var finished = databaseHelper.deleteTask(task.idsWithin[0]);
-                  }
-                  _onLoading();
-                },
-                child: const Text('DELETE'),
-              ),
-            ],
-          ),
-        );
+        if (_stopWatchTimer.isRunning) {
+          timerRunningSnack();
+        } else {
+          showDialog<String>(
+            context: context,
+            builder: (BuildContext context) => AlertDialog(
+              title: const Text('Delete'),
+              content: task.idsWithin.length > 1
+                  ? const Text(
+                      'Are you sure you want to delete this whole group of tasks?')
+                  : const Text('Are you sure you want to delete this task?'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('CANCEL'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    if (task.idsWithin.length > 1) {
+                      var finished = databaseHelper.deleteGroup(task.idsWithin);
+                    } else {
+                      var finished =
+                          databaseHelper.deleteTask(task.idsWithin[0]);
+                    }
+                    _onLoading();
+                  },
+                  child: const Text('DELETE'),
+                ),
+              ],
+            ),
+          );
+        }
       },
       onRightSwipe: () {
-        fieldText.text = task.fullName;
-        timerHelper.nameAndTags = task.fullName;
-        setState(() {
-          startStop();
-        });
+        if (_stopWatchTimer.isRunning) {
+          timerRunningSnack();
+        } else {
+          fieldText.text = task.fullName;
+          timerHelper.nameAndTags = task.fullName;
+          setState(() {
+            startStop();
+          });
+        }
       },
       iconOnRightSwipe: Icons.refresh,
       iconOnLeftSwipe: task.idsWithin.length > 1 ? Icons.delete_forever : Icons.delete,
@@ -330,25 +356,28 @@ class _FurHomeState extends State<FurHome> {
         margin: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 4.0),
         child: InkWell(
           onTap: () {
-            if (task.idsWithin.length > 1) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => FurTaskGroup(idList: task.idsWithin)
-                ),
-              ).then((value) {
-                setState(() {
-                  _allDisplayTasks.clear();
-                  refreshDatabase();
-                });
-              });
+            if (_stopWatchTimer.isRunning) {
+              timerRunningSnack();
             } else {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => FurTaskEdit(id: task.idsWithin[0])
-                ),
-              ).then((value) => resetPage());
+              if (task.idsWithin.length > 1) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          FurTaskGroup(idList: task.idsWithin)),
+                ).then((value) {
+                  setState(() {
+                    _allDisplayTasks.clear();
+                    refreshDatabase();
+                  });
+                });
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => FurTaskEdit(id: task.idsWithin[0])),
+                ).then((value) => resetPage());
+              }
             }
           },
           child: ListTile(

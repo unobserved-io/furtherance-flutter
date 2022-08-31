@@ -211,7 +211,7 @@ class _FurTaskEditState extends State<FurTaskEdit> {
                                           errorMessage = _getErrorMessage();
                                         });
                                       } else {
-                                        databaseHelper.updateTitle(newTitle, task.id);
+                                        databaseHelper.updateTitle(newTitle.trim(), task.id);
                                         refreshTask();
                                         Navigator.pop(context);
                                       }

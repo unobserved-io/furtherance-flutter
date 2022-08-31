@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:furtherance/fur_task.dart';
 import 'package:furtherance/database_helper.dart';
 import 'styles.dart';
 import 'package:intl/intl.dart';
@@ -130,19 +129,25 @@ class _FurNewTaskState extends State<FurNewTask> {
               elevation: 8.0,
               margin: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 4.0),
               child: InkWell(
-                onTap: () => _showDialog(
-                  CupertinoDatePicker(
-                    // CupertinoDatePicker doesn't seem to like UTC formats, so this is necessary to get the correct max time
-                    initialDateTime: newStartTime,
-                    use24hFormat: true,
-                    maximumDate: newStopTime,
-                    onDateTimeChanged: (DateTime newDateTime) {
-                      setState(() {
-                        newStartTime = newDateTime;
-                      });
-                    },
-                  ),
-                ),
+                onTap: () {
+                  FocusScopeNode currentFocus = FocusScope.of(context);
+                  if (!currentFocus.hasPrimaryFocus) {
+                    currentFocus.unfocus();
+                  }
+                  _showDialog(
+                    CupertinoDatePicker(
+                      // CupertinoDatePicker doesn't seem to like UTC formats, so this is necessary to get the correct max time
+                      initialDateTime: newStartTime,
+                      use24hFormat: true,
+                      maximumDate: newStopTime,
+                      onDateTimeChanged: (DateTime newDateTime) {
+                        setState(() {
+                          newStartTime = newDateTime;
+                        });
+                      },
+                    ),
+                  );
+                },
                 child: ListTile(
                   contentPadding:
                   const EdgeInsets.symmetric(horizontal: 20.0, vertical: 0.0),
@@ -166,19 +171,25 @@ class _FurNewTaskState extends State<FurNewTask> {
               elevation: 8.0,
               margin: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 4.0),
               child: InkWell(
-                onTap: () => _showDialog(
-                  CupertinoDatePicker(
-                    initialDateTime: newStopTime,
-                    use24hFormat: true,
-                    minimumDate: newStartTime,
-                    maximumDate: DateTime.now(),
-                    onDateTimeChanged: (DateTime newDateTime) {
-                      setState(() {
-                        newStopTime = newDateTime;
-                      });
-                    },
-                  ),
-                ),
+                onTap: () {
+                  FocusScopeNode currentFocus = FocusScope.of(context);
+                  if (!currentFocus.hasPrimaryFocus) {
+                    currentFocus.unfocus();
+                  }
+                  _showDialog(
+                    CupertinoDatePicker(
+                      initialDateTime: newStopTime,
+                      use24hFormat: true,
+                      minimumDate: newStartTime,
+                      maximumDate: DateTime.now(),
+                      onDateTimeChanged: (DateTime newDateTime) {
+                        setState(() {
+                          newStopTime = newDateTime;
+                        });
+                      },
+                    ),
+                  );
+                },
                 child: ListTile(
                   contentPadding:
                   const EdgeInsets.symmetric(horizontal: 20.0, vertical: 0.0),
@@ -223,7 +234,7 @@ class _FurNewTaskState extends State<FurNewTask> {
                         });
                       } else {
                         //Good to go
-                        databaseHelper.addData(newTitle, newStartTime, newStopTime, separateTags());
+                        databaseHelper.addData(newTitle.trim(), newStartTime, newStopTime, separateTags());
                         Navigator.pop(context);
                       }
                     }

@@ -290,7 +290,7 @@ class _FurTaskGroupState extends State<FurTaskGroup> {
                                           errorMessage = _getErrorMessage();
                                         });
                                       } else {
-                                        databaseHelper.updateGroupTitle(newTitle, widget.idList);
+                                        databaseHelper.updateGroupTitle(newTitle.trim(), widget.idList);
                                         getTasks();
                                         Navigator.pop(context);
                                       }

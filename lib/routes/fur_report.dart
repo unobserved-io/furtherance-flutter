@@ -28,6 +28,7 @@ class _FurReportState extends State<FurReport> {
   DateTime rangeStopDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
   final DateFormat formatter = DateFormat('MMM dd, yyyy');
   String totalTimeLabel = '';
+  List<String> splitTagsList = [];
 
   DatabaseHelper databaseHelper = DatabaseHelper();
   List<Tuple3<String, int, List<Tuple2<String, int>>>> sortedTasksByDuration = [];
@@ -91,7 +92,7 @@ class _FurReportState extends State<FurReport> {
             // Don't allow empty tasks
             splitTags.removeWhere((element) => element.isEmpty);
             // Handle duplicate tasks
-            splitTags = splitTags.toSet().toList();
+            splitTagsList = splitTags.toSet().toList();
 
             // Get and trim task's tags
             List<String> splitTaskTags = task.tags.split('#');
@@ -101,7 +102,7 @@ class _FurReportState extends State<FurReport> {
             splitTaskTags.removeWhere((element) => element.isEmpty);
 
             // Remove all tags that don't match the user's chosen tags
-            splitTaskTags.removeWhere((element) => !splitTags.contains(element));
+            splitTaskTags.removeWhere((element) => !splitTagsList.contains(element));
 
             if (splitTaskTags.isNotEmpty) {
               Duration timeDifference = task.stopTime.difference(task.startTime);
@@ -180,7 +181,7 @@ class _FurReportState extends State<FurReport> {
         sortedTasksByDuration = List.from(sortedTasksByDuration.reversed);
       }
 
-    } else {
+    } else { // Sort By Tag
       List<List<Tuple3<String, FurTask, int>>> tasksByTag = [];
 
       // Group tasks by tag
@@ -195,17 +196,20 @@ class _FurReportState extends State<FurReport> {
         // Don't allow empty tags
         splitTags.removeWhere((element) => element.isEmpty);
         for (String tag in splitTags) {
-          bool unique = true;
-          for (int i = 0; i < tasksByTag.length; i++) {
-            String tbtTag = tasksByTag[i][0].item1;
-            if (tbtTag == tag) {
-              tasksByTag[i].add(Tuple3(tag, task, timeDiff));
-              unique = false;
+          if (!(filterCheck && filterText.trim().isNotEmpty && filterBy == 'Tag')
+            || (filterCheck && filterText.trim().isNotEmpty && splitTagsList.contains(tag))) {
+            bool unique = true;
+            for (int i = 0; i < tasksByTag.length; i++) {
+              String tbtTag = tasksByTag[i][0].item1;
+              if (tbtTag == tag) {
+                tasksByTag[i].add(Tuple3(tag, task, timeDiff));
+                unique = false;
+              }
             }
-          }
-          if (unique) {
-            // Add unique task to list for group name
-            tasksByTag.add([Tuple3(tag, task, timeDiff)]);
+            if (unique) {
+              // Add unique task to list for group name
+              tasksByTag.add([Tuple3(tag, task, timeDiff)]);
+            }
           }
         }
       }
@@ -488,15 +492,16 @@ class _FurReportState extends State<FurReport> {
                           filterText = text;
                         },
                         maxLines: 1,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(
+                        decoration: InputDecoration(
+                          border: const OutlineInputBorder(
                             borderRadius: BorderRadius.all(
                               Radius.circular(5.0),
                             ),
                             borderSide: BorderSide(color: furPurple, width: 2.0),
                           ),
                           isDense: true,
-                          contentPadding: EdgeInsets.fromLTRB(10.0, 7.0, 10.0, 7.0)
+                          contentPadding: const EdgeInsets.fromLTRB(10.0, 7.0, 10.0, 7.0),
+                          hintText: filterBy == 'Task' ? 'Task one, Task two' : '#tag1 #tag two',
                         ),
                       ),
                     ),
@@ -509,6 +514,10 @@ class _FurReportState extends State<FurReport> {
                 side: const BorderSide(color: furPurple, width: 2.0,),
               ),
               onPressed: () {
+                FocusScopeNode currentFocus = FocusScope.of(context);
+                if (!currentFocus.hasPrimaryFocus) {
+                  currentFocus.unfocus();
+                }
                 setState(() {
                   sortedTasksByDuration = [];
                   _furReportGenerator();
