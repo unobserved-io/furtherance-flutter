@@ -1,8 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:furtherance/routes/fur_home.dart';
 import 'package:furtherance/routes/styles.dart';
+import 'package:furtherance/globals.dart';
+import 'package:furtherance/notification_service.dart';
+// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-void main() {
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Prefs.init();
+  _setPrefs();
+
+  // Init local notifications
+  // final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  // FlutterLocalNotificationsPlugin();
+  // const AndroidInitializationSettings initializationSettingsAndroid =
+  // AndroidInitializationSettings('app_icon');
+  // const IOSInitializationSettings initializationSettingsIOS =
+  // IOSInitializationSettings(
+  //     requestAlertPermission: false,
+  //     requestBadgePermission: false,
+  //     requestSoundPermission: false,
+  // );
+  // const InitializationSettings initializationSettings = InitializationSettings(
+  //     android: initializationSettingsAndroid,
+  //     iOS: initializationSettingsIOS
+  // );
+  // await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  await NotificationService().init();
+
   runApp(const MyApp());
 }
 
@@ -27,10 +53,16 @@ class MyApp extends StatelessWidget {
       initialRoute: 'home_page',
       routes: {
         'home_page': (context) => const FurHome(),
-        // 'edit_task_page': (context) => FurEditTask(),
-        // 'new_task_page': (context) => FurNewTask(),
-        // 'task_group_page': (context) => FurTaskGroup(),
       },
     );
   }
 }
+
+void _setPrefs() {
+  if (!(Prefs.getValue('prefsSet', false) as bool)) {
+    Prefs.setValue('prefsSet', true);
+    Prefs.setValue('pomodoro', false);
+    Prefs.setValue('pomodoroTime', 25);
+  }
+}
+

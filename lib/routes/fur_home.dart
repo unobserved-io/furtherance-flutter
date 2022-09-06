@@ -6,6 +6,7 @@ import 'package:furtherance/fur_task.dart';
 import 'package:furtherance/fur_task_display.dart';
 import 'package:furtherance/routes/fur_new_task.dart';
 import 'package:furtherance/routes/fur_report.dart';
+import 'package:furtherance/routes/fur_settings.dart';
 import 'package:furtherance/routes/fur_task_group.dart';
 import 'styles.dart';
 import 'package:furtherance/timer_helper.dart';
@@ -14,6 +15,8 @@ import 'package:grouped_list/grouped_list.dart';
 import 'fur_task_edit.dart';
 import 'package:intl/intl.dart';
 import 'package:swipe_to/swipe_to.dart';
+import 'package:furtherance/globals.dart';
+import 'package:furtherance/notification_service.dart';
 
 
 class FurHome extends StatefulWidget {
@@ -42,8 +45,6 @@ class _FurHomeState extends State<FurHome> {
   TimerHelper timerHelper = TimerHelper();
   bool taskEntryEnabled = true;
 
-
-  // List<FurTask> _allTasks = [];
   List<FurTaskDisplay> _allDisplayTasks = [];
 
   void refreshDatabase() async {
@@ -92,6 +93,8 @@ class _FurHomeState extends State<FurHome> {
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
+
+
 
   String _dateDisplay(String displayDate) {
     // Remove the year if it matches the current year.
@@ -167,6 +170,24 @@ class _FurHomeState extends State<FurHome> {
                   ),
                   color: Colors.black,
                 ),
+                IconButton(
+                  onPressed: () {
+                    if (_stopWatchTimer.isRunning) {
+                      timerRunningSnack();
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const FurSettings()),
+                      ).then((value) => resetPage());
+                    }
+                  },
+                  icon: const Icon(
+                    Icons.settings,
+                    size: 30.0,
+                  ),
+                  color: Colors.black,
+                ),
               ],
             ),
             Container(
@@ -195,9 +216,27 @@ class _FurHomeState extends State<FurHome> {
                       stream: _stopWatchTimer.secondTime,
                       initialData: _stopWatchTimer.secondTime.value,
                       builder: (context, snap) {
-                        final secs = snap.data;
+                        var secs = snap.data;
                         String timerString = '00:00:00';
-                        if (secs != null) {
+                        if (Prefs.getValue('pomodoro', false) as bool && (secs == 0 || secs == null)) {
+                          int pomodoroTime = (Prefs.getValue('pomodoroTime', 25) as int) * 60;
+                          final h = (pomodoroTime / 3600).floor().toString().padLeft(2, '0');
+                          final m = (pomodoroTime % 3600 / 60).floor().toString().padLeft(2, '0');
+                          final s = (pomodoroTime % 60).floor().toString().padLeft(2, '0');
+
+                          timerString = '$h:$m:$s';
+                        }
+                        if (secs != null && secs != 0) {
+                          if (Prefs.getValue('pomodoro', false) as bool) {
+                            final pomodoroTime = (Prefs.getValue('pomodoroTime', 25) as int) * 60;
+                            secs = pomodoroTime - secs;
+                            if (secs == 0) {
+                              WidgetsBinding.instance.addPostFrameCallback((_){
+                                startStop();
+                                NotificationService().showAndroidPomodoroNotification();
+                              });
+                            }
+                          }
                           final h = (secs / 3600).floor().toString().padLeft(2, '0');
                           final m = (secs % 3600 / 60).floor().toString().padLeft(2, '0');
                           final s = (secs % 60).floor().toString().padLeft(2, '0');
@@ -321,6 +360,7 @@ class _FurHomeState extends State<FurHome> {
                   onPressed: () {
                     Navigator.pop(context);
                     if (task.idsWithin.length > 1) {
+                      // TODO remove these 'finished' vars
                       var finished = databaseHelper.deleteGroup(task.idsWithin);
                     } else {
                       var finished =
