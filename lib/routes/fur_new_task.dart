@@ -107,7 +107,6 @@ class _FurNewTaskState extends State<FurNewTask> {
                     },
                     decoration: const InputDecoration(
                       labelText: 'Task Name',
-                      // hintText: task.name,
                     ),
                   ),
                   TextField(
@@ -116,7 +115,6 @@ class _FurNewTaskState extends State<FurNewTask> {
                     },
                     decoration: const InputDecoration(
                       labelText: '#tags',
-                      // hintText: task.name,
                     ),
                   ),
                 ],
@@ -233,7 +231,7 @@ class _FurNewTaskState extends State<FurNewTask> {
                           errorMessage = _getErrorMessage();
                         });
                       } else {
-                        //Good to go
+                        // Good to go
                         databaseHelper.addData(newTitle.trim(), newStartTime, newStopTime, separateTags());
                         Navigator.pop(context);
                       }
@@ -270,7 +268,6 @@ class _FurNewTaskState extends State<FurNewTask> {
                 ),
               ),
             ),
-            // ADD MORE ABOVE
           ],
         ),
       ),

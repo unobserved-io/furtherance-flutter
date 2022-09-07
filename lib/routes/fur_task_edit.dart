@@ -110,7 +110,6 @@ class _FurTaskEditState extends State<FurTaskEdit> {
                 context: context,
                 builder: (BuildContext context) => AlertDialog(
                   title: const Text('Delete this task?'),
-                  // content: const Text('Are you sure you want to delete this task?'),
                   actions: <Widget>[
                     TextButton(
                       onPressed: () => Navigator.pop(context),
@@ -434,7 +433,6 @@ class _FurTaskEditState extends State<FurTaskEdit> {
                 ),
               ),
             ),
-            // ADD MORE ABOVE
           ],
         ),
       ),

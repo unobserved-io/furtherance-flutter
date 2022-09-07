@@ -445,7 +445,6 @@ class _FurReportState extends State<FurReport> {
                 Checkbox(
                   activeColor: furPurple,
                   checkColor: Colors.white,
-                  // fillColor: MaterialStateProperty.resolveWith(furPurple),
                   value: filterCheck,
                   onChanged: (bool? value) {
                     setState(() {

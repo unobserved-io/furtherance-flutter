@@ -83,7 +83,6 @@ class DatabaseHelper {
   Future<List<FurTask>> getByIds(List<int> ids) async {
     final Database db = await getDatabaseConnect();
     List<FurTask> allTheseIds = [];
-    // final query = await db.rawQuery('SELECT * FROM $tableName ORDER BY start_time DESC');
     for (int i = 0; i < ids.length; i++) {
       final query = await db.rawQuery('SELECT * FROM $tableName WHERE $columnId = ${ids[i]}');
 

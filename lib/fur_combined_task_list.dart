@@ -11,7 +11,6 @@ class FurCombinedTaskList {
     for (FurTask task in allTasks) {
       Duration timeDifference = task.stopTime.difference(task.startTime);
       var totalSeconds = timeDifference.inSeconds;
-      // var startDate = _dateDisplay(task.startTime);
       var startDate = DateFormat.yMMMd().format(task.startTime);
       var fullName = '${task.name} ${task.tags}';
       var found = false;

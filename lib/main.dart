@@ -31,7 +31,6 @@ class MyApp extends StatelessWidget {
           onSecondary: Colors.white,
           background: Colors.white,
         )
-        // scaffoldBackgroundColor: Colors.white70,
       ),
       initialRoute: 'home_page',
       routes: {
