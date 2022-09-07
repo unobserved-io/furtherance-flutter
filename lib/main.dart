@@ -3,32 +3,15 @@ import 'package:furtherance/routes/fur_home.dart';
 import 'package:furtherance/routes/styles.dart';
 import 'package:furtherance/globals.dart';
 import 'package:furtherance/notification_service.dart';
-// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Prefs.init();
   _setPrefs();
-
-  // Init local notifications
-  // final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  // FlutterLocalNotificationsPlugin();
-  // const AndroidInitializationSettings initializationSettingsAndroid =
-  // AndroidInitializationSettings('app_icon');
-  // const IOSInitializationSettings initializationSettingsIOS =
-  // IOSInitializationSettings(
-  //     requestAlertPermission: false,
-  //     requestBadgePermission: false,
-  //     requestSoundPermission: false,
-  // );
-  // const InitializationSettings initializationSettings = InitializationSettings(
-  //     android: initializationSettingsAndroid,
-  //     iOS: initializationSettingsIOS
-  // );
-  // await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   await NotificationService().init();
-
   runApp(const MyApp());
 }
 

@@ -17,6 +17,7 @@ import 'package:intl/intl.dart';
 import 'package:swipe_to/swipe_to.dart';
 import 'package:furtherance/globals.dart';
 import 'package:furtherance/notification_service.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 
 class FurHome extends StatefulWidget {
@@ -115,6 +116,7 @@ class _FurHomeState extends State<FurHome> {
   @override
   void initState() {
     super.initState();
+    FlutterNativeSplash.remove();
     resetPage();
   }
 
@@ -360,11 +362,9 @@ class _FurHomeState extends State<FurHome> {
                   onPressed: () {
                     Navigator.pop(context);
                     if (task.idsWithin.length > 1) {
-                      // TODO remove these 'finished' vars
-                      var finished = databaseHelper.deleteGroup(task.idsWithin);
+                      databaseHelper.deleteGroup(task.idsWithin);
                     } else {
-                      var finished =
-                          databaseHelper.deleteTask(task.idsWithin[0]);
+                      databaseHelper.deleteTask(task.idsWithin[0]);
                     }
                     _onLoading();
                   },
