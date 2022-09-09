@@ -48,6 +48,8 @@ class _FurHomeState extends State<FurHome> {
 
   List<FurTaskDisplay> _allDisplayTasks = [];
 
+
+
   void refreshDatabase() async {
     setState(() {
       _allDisplayTasks.clear();
@@ -66,13 +68,17 @@ class _FurHomeState extends State<FurHome> {
     });
   }
 
-  void startStop() {
+  void startStop({bool lateStop = false}) {
     if (_stopWatchTimer.isRunning) {
       _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
       _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
-      timerHelper.stopTimer();
+      timerHelper.stopTimer(lateStop);
+      if (Prefs.getValue('pomodoro', false) as bool) {
+        NotificationService().cancelPendingNotifications();
+      }
       startStopIcon = startIcon;
       fieldText.clear();
+      timerHelper.nameAndTags = '';
       FocusManager.instance.primaryFocus?.unfocus();
       taskEntryEnabled = true;
       resetPage();
@@ -80,6 +86,9 @@ class _FurHomeState extends State<FurHome> {
       if (timerHelper.nameAndTags.isNotEmpty) {
         _stopWatchTimer.onExecute.add(StopWatchExecute.start);
         timerHelper.startTimer();
+        if (Prefs.getValue('pomodoro', false) as bool) {
+          NotificationService().showTimedAndroidPomodoroNotification();
+        }
         startStopIcon = stopIcon;
         FocusManager.instance.primaryFocus?.unfocus();
         taskEntryEnabled = false;
@@ -101,6 +110,11 @@ class _FurHomeState extends State<FurHome> {
     // Remove the year if it matches the current year.
     if (displayDate.substring(displayDate.length - 4) == DateTime.now().year.toString()) {
       displayDate = displayDate.substring(0, displayDate.length - 6);
+    }
+
+    // Remove leading 0 from day
+    if (displayDate[4] == '0') {
+      displayDate = displayDate.substring(0, 4) + displayDate.substring(5);
     }
 
     if (displayDate == DateFormat.MMMd().format(DateTime.now())) {
@@ -235,10 +249,16 @@ class _FurHomeState extends State<FurHome> {
                             if (secs == 0) {
                               WidgetsBinding.instance.addPostFrameCallback((_){
                                 startStop();
-                                NotificationService().showAndroidPomodoroNotification();
                               });
+                            } else if (secs < 0) {
+                              WidgetsBinding.instance.addPostFrameCallback((_){
+                                // Late stop here because it doesn't stop until the user re-opens the app.
+                                startStop(lateStop: true);
+                              });
+                              secs = 0;
                             }
                           }
+
                           final h = (secs / 3600).floor().toString().padLeft(2, '0');
                           final m = (secs % 3600 / 60).floor().toString().padLeft(2, '0');
                           final s = (secs % 60).floor().toString().padLeft(2, '0');
@@ -247,8 +267,9 @@ class _FurHomeState extends State<FurHome> {
                         }
                         return Text(
                           timerString,
-                          style: const TextStyle(
-                            fontSize: 80.0,
+                          textScaleFactor: 1.0,
+                          style: TextStyle(
+                            fontSize: secs! < 360000 ? 80.0 : 70.0,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
@@ -315,7 +336,7 @@ class _FurHomeState extends State<FurHome> {
             Expanded(
               child: GroupedListView<FurTaskDisplay, String>(
                 elements: _allDisplayTasks,
-                groupBy: (task) => task.startDate,
+                groupBy: (taskGroup) => taskGroup.startDate,
                 groupSeparatorBuilder: (String groupByValue) => Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 5.0),
                   child: Text(

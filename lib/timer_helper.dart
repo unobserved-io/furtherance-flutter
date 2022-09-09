@@ -1,4 +1,6 @@
 import 'database_helper.dart';
+import 'package:furtherance/globals.dart';
+
 
 class TimerHelper {
   late DateTime startTime;
@@ -22,8 +24,12 @@ class TimerHelper {
     separateTags();
   }
 
-  void stopTimer() {
-    setStopTime(DateTime.now());
+  void stopTimer(bool lateStop) {
+    if (!lateStop) {
+      setStopTime(DateTime.now());
+    } else {
+      setStopTime(startTime.add(Duration(minutes: Prefs.getValue('pomodoroTime', 25) as int)));
+    }
     databaseHelper.addData(taskName, startTime, stopTime, taskTags);
   }
 

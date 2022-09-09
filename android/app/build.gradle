@@ -13,12 +13,12 @@ if (flutterRoot == null) {
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
-    flutterVersionCode = '1'
+    flutterVersionCode = '4'
 }
 
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
 if (flutterVersionName == null) {
-    flutterVersionName = '1.0.0'
+    flutterVersionName = '1.0.3'
 }
 
 def keystoreProperties = new Properties()
@@ -69,6 +69,13 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
+
+            minifyEnabled true
+            shrinkResources true
+
+            proguardFiles getDefaultProguardFile(
+                    'proguard-android-optimize.txt'),
+                    'proguard-rules.pro'
         }
     }
 }
@@ -78,7 +85,7 @@ flutter {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 
 android.buildTypes.release.ndk.debugSymbolLevel = 'FULL'

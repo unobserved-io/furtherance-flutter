@@ -91,6 +91,10 @@ class _FurTaskEditState extends State<FurTaskEdit> {
         ));
   }
 
+  void _onBackPressed() {
+    Navigator.popUntil(context, ModalRoute.withName('home_page'));
+  }
+
   @override
   void initState() {
     refreshTask();
@@ -101,6 +105,7 @@ class _FurTaskEditState extends State<FurTaskEdit> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: BackButton(onPressed: _onBackPressed),
         title: const Text(
           'Edit Task',
         ),
@@ -119,14 +124,14 @@ class _FurTaskEditState extends State<FurTaskEdit> {
                       onPressed: () {
                         databaseHelper.deleteTask(task.id);
                         Navigator.pop(context);
-                        Navigator.pop(context);
+                        Navigator.pop(context, {'deletedId':task.id});
                       },
                       child: const Text('DELETE'),
                     ),
                   ],
                 ),
               ),
-              icon: const Icon(Icons.delete_forever),
+              icon: const Icon(Icons.delete),
           ),
         ],
       ),

@@ -6,12 +6,14 @@ import 'package:intl/intl.dart';
 class FurCombinedTaskList {
 
   List<FurTaskDisplay> orgList = [];
+  // startDate day needs a leading 0 to properly organize the list
+  final DateFormat sortFormatter = DateFormat('MMM dd, yyyy');
 
   FurCombinedTaskList(List<FurTask> allTasks) {
     for (FurTask task in allTasks) {
       Duration timeDifference = task.stopTime.difference(task.startTime);
       var totalSeconds = timeDifference.inSeconds;
-      var startDate = DateFormat.yMMMd().format(task.startTime);
+      var startDate = sortFormatter.format(task.startTime);
       var fullName = '${task.name} ${task.tags}';
       var found = false;
 

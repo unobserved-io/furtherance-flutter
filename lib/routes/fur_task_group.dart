@@ -39,6 +39,15 @@ class _FurTaskGroupState extends State<FurTaskGroup> {
       _allGroupTasks = listGetter;
     });
   }
+  
+  void refreshAfterEdit(int deletedId) {
+    widget.idList.remove(deletedId);
+    if (widget.idList.length < 2) {
+      Navigator.pop(context);
+    } else {
+      getTasks();
+    }
+  }
 
   String _getErrorMessage() {
     if (errorType == ErrorType.containsPound) {
@@ -136,7 +145,12 @@ class _FurTaskGroupState extends State<FurTaskGroup> {
                     MaterialPageRoute(
                       builder: (context) => FurTaskEdit(id: task.id),
                     ),
-                  ),
+                  ).then((value) {
+                    if (value != null) {
+                      var deletedId = (value as Map)['deletedId'];
+                      refreshAfterEdit(deletedId);
+                    }
+                  }),
               icon: const Icon(Icons.edit),
             ),
           ],
