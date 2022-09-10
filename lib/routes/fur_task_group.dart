@@ -149,6 +149,8 @@ class _FurTaskGroupState extends State<FurTaskGroup> {
                     if (value != null) {
                       var deletedId = (value as Map)['deletedId'];
                       refreshAfterEdit(deletedId);
+                    } else {
+                      getTasks();
                     }
                   }),
               icon: const Icon(Icons.edit),

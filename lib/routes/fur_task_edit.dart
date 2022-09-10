@@ -30,6 +30,8 @@ class _FurTaskEditState extends State<FurTaskEdit> {
   String errorMessage = '';
   DatabaseHelper databaseHelper = DatabaseHelper();
   final DateFormat formatter = DateFormat('MMM dd, yyyy H:mm');
+  bool titleChanged = false;
+  bool tagsChanged = false;
 
   void refreshTask() async {
     FurTask taskGetter = await databaseHelper.getById(widget.id);
@@ -92,7 +94,12 @@ class _FurTaskEditState extends State<FurTaskEdit> {
   }
 
   void _onBackPressed() {
-    Navigator.popUntil(context, ModalRoute.withName('home_page'));
+    if (titleChanged || tagsChanged) {
+      Navigator.pop(context, {'deletedId':task.id});
+    } else {
+      Navigator.pop(context);
+    }
+    // Navigator.popUntil(context, ModalRoute.withName('home_page'));
   }
 
   @override
@@ -215,8 +222,11 @@ class _FurTaskEditState extends State<FurTaskEdit> {
                                           errorMessage = _getErrorMessage();
                                         });
                                       } else {
-                                        databaseHelper.updateTitle(newTitle.trim(), task.id);
-                                        refreshTask();
+                                        if (newTitle.trim() != task.name) {
+                                          databaseHelper.updateTitle(newTitle.trim(), task.id);
+                                          refreshTask();
+                                          titleChanged = true;
+                                        }
                                         Navigator.pop(context);
                                       }
                                     } else {
@@ -338,8 +348,12 @@ class _FurTaskEditState extends State<FurTaskEdit> {
                                         errorMessage = _getErrorMessage();
                                       });
                                     } else {
-                                      databaseHelper.updateTags(separateTags(), task.id);
-                                      refreshTask();
+                                      var newTagsSeparated = separateTags();
+                                      if (task.tags != '#$newTagsSeparated') {
+                                        databaseHelper.updateTags(newTagsSeparated, task.id);
+                                        refreshTask();
+                                        tagsChanged = true;
+                                      }
                                       Navigator.pop(context);
                                     }
                                   },
