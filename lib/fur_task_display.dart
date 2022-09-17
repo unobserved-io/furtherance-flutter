@@ -1,5 +1,3 @@
-import 'package:furtherance/fur_task.dart';
-
 class FurTaskDisplay {
 
   String name;
@@ -10,7 +8,6 @@ class FurTaskDisplay {
   String startDate;
   DateTime stopTime;
   List<int> idsWithin = [];
-  // List<FurTask> tasksWithin = [];
 
   FurTaskDisplay(int id, this.name, this.tags, this.stopTime, this.totalSeconds, this.startDate) {
     idsWithin.add(id);

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:furtherance/routes/styles.dart';
-import 'styles.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:furtherance/fur_task.dart';
