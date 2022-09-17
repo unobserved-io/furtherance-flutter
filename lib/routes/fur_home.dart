@@ -18,6 +18,7 @@ import 'package:swipe_to/swipe_to.dart';
 import 'package:furtherance/globals.dart';
 import 'package:furtherance/notification_service.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 
 class FurHome extends StatefulWidget {
@@ -265,14 +266,14 @@ class _FurHomeState extends State<FurHome> {
 
                           timerString = '$h:$m:$s';
                         }
-                        return Text(
+                        return AutoSizeText(
                           timerString,
-                          textScaleFactor: 1.0,
-                          style: TextStyle(
-                            fontSize: secs! < 360000 ? 80.0 : 70.0,
+                          style: const TextStyle(
+                            fontSize: 80.0,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
+                          maxLines: 1,
                         );
                       },
                     ),
