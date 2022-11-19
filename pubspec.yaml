@@ -12,7 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  stop_watch_timer: ^1.5.0
+  stop_watch_timer: ^2.0.0
   sqflite: ^2.0.3
   path_provider: ^2.0.11
   intl: ^0.17.0
@@ -27,6 +27,8 @@ dependencies:
   flutter_native_timezone: ^2.0.0
   auto_size_text: ^3.0.0
   timezone: ^0.8.0
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
 
 dev_dependencies:
   flutter_test:

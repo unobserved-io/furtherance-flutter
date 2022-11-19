@@ -4,6 +4,7 @@ import 'package:furtherance/routes/styles.dart';
 import 'package:furtherance/globals.dart';
 import 'package:furtherance/notification_service.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 
 void main() async {
@@ -11,6 +12,8 @@ void main() async {
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Prefs.init();
   _setPrefs();
+  await Hive.initFlutter();
+  await Hive.openBox('fur_box');
   await NotificationService().init();
   runApp(const MyApp());
 }

@@ -8,6 +8,7 @@ import 'package:furtherance/routes/fur_new_task.dart';
 import 'package:furtherance/routes/fur_report.dart';
 import 'package:furtherance/routes/fur_settings.dart';
 import 'package:furtherance/routes/fur_task_group.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'styles.dart';
 import 'package:furtherance/timer_helper.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
@@ -29,6 +30,7 @@ class FurHome extends StatefulWidget {
 }
 
 class _FurHomeState extends State<FurHome> {
+  final furBox = Hive.box('fur_box');
   final fieldText = TextEditingController();
   DatabaseHelper databaseHelper = DatabaseHelper();
   static const startIcon = Icon(
@@ -49,7 +51,23 @@ class _FurHomeState extends State<FurHome> {
 
   List<FurTaskDisplay> _allDisplayTasks = [];
 
-
+  void restartTimer(DateTime timerStartTime) {
+    if (!_stopWatchTimer.isRunning) {
+      var timeDifference = DateTime.now().difference(timerStartTime).inSeconds;
+      _stopWatchTimer.setPresetSecondTime(timeDifference);
+      timerHelper.taskName = furBox.get('taskName');
+      timerHelper.startTime = furBox.get('startTime');
+      timerHelper.taskTags = furBox.get('taskTags');
+      timerHelper.nameAndTags = furBox.get('nameAndTags');
+      setState(() {
+        fieldText.text = timerHelper.nameAndTags;
+        _stopWatchTimer.onStartTimer();
+      });
+      startStopIcon = stopIcon;
+      FocusManager.instance.primaryFocus?.unfocus();
+      taskEntryEnabled = false;
+    }
+  }
 
   void refreshDatabase() async {
     setState(() {
@@ -71,8 +89,9 @@ class _FurHomeState extends State<FurHome> {
 
   void startStop({bool lateStop = false}) {
     if (_stopWatchTimer.isRunning) {
-      _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
-      _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
+      _stopWatchTimer.onStopTimer();
+      _stopWatchTimer.onResetTimer();
+      _stopWatchTimer.clearPresetTime();
       timerHelper.stopTimer(lateStop);
       if (Prefs.getValue('pomodoro', false) as bool) {
         NotificationService().cancelPendingNotifications();
@@ -85,7 +104,7 @@ class _FurHomeState extends State<FurHome> {
       resetPage();
     } else {
       if (timerHelper.nameAndTags.isNotEmpty) {
-        _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+        _stopWatchTimer.onStartTimer();
         timerHelper.startTimer();
         if (Prefs.getValue('pomodoro', false) as bool) {
           NotificationService().showTimedAndroidPomodoroNotification();
@@ -133,6 +152,18 @@ class _FurHomeState extends State<FurHome> {
     super.initState();
     FlutterNativeSplash.remove();
     resetPage();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      var isTimerRunning = furBox.get('timerRunning');
+      if (isTimerRunning != null) {
+        if (!_stopWatchTimer.isRunning && isTimerRunning) {
+          var timerStartTime = furBox.get('startTime');
+          if (timerStartTime != null) {
+            restartTimer(timerStartTime);
+          }
+        }
+      }
+    });
   }
 
   @override
