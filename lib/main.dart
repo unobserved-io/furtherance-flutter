@@ -15,11 +15,11 @@ void main() async {
   await Hive.initFlutter();
   await Hive.openBox('fur_box');
   await NotificationService().init();
-  runApp(const MyApp());
+  runApp(const Furtherance());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class Furtherance extends StatelessWidget {
+  const Furtherance({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
