@@ -25,7 +25,7 @@ class FurCombinedTaskList {
         }
       }
       if (!found || orgList.isEmpty) {
-        orgList.add(FurTaskDisplay(task.id, task.name, task.tags, task.stopTime, totalSeconds, startDate));
+        orgList.add(FurTaskDisplay(task.id, task.name, task.tags, task.stopTime, totalSeconds, startDate, task.startTime));
       }
     }
   }

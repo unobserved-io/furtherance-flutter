@@ -74,10 +74,14 @@ class _FurHomeState extends State<FurHome> {
       _allDisplayTasks.clear();
     });
     List<FurTask> newTaskList = await databaseHelper.retrieve();
+    print('First: ${newTaskList.first.startTime}');
+    print('Last: ${newTaskList.last.startTime}');
     FurCombinedTaskList furCombinedTaskList = FurCombinedTaskList(newTaskList);
     setState(() {
       _allDisplayTasks = furCombinedTaskList.orgList;
     });
+    print('FirstOrg: ${furCombinedTaskList.orgList.first.startDate}');
+    print('LastOrg: ${furCombinedTaskList.orgList.last.startDate}');
   }
 
   void resetPage() {
@@ -369,6 +373,7 @@ class _FurHomeState extends State<FurHome> {
               child: GroupedListView<FurTaskDisplay, String>(
                 elements: _allDisplayTasks,
                 groupBy: (taskGroup) => taskGroup.startDate,
+                sort: false,
                 groupSeparatorBuilder: (String groupByValue) => Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 5.0),
                   child: Text(
@@ -380,7 +385,7 @@ class _FurHomeState extends State<FurHome> {
                 ),
                 stickyHeaderBackgroundColor: const Color(0xFFFAFAFA),
                 itemBuilder: (_, FurTaskDisplay task) => _createItem(context, task),
-                itemComparator: (item1, item2) => item1.stopTime.compareTo(item2.stopTime),
+                itemComparator: (item1, item2) => item2.stopTime.compareTo(item1.stopTime),
                 useStickyGroupSeparators: true,
                 floatingHeader: false,
                 order: GroupedListOrder.DESC,

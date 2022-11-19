@@ -6,10 +6,11 @@ class FurTaskDisplay {
   int totalSeconds;
   late String totalTime;
   String startDate;
+  DateTime startDateTime;
   DateTime stopTime;
   List<int> idsWithin = [];
 
-  FurTaskDisplay(int id, this.name, this.tags, this.stopTime, this.totalSeconds, this.startDate) {
+  FurTaskDisplay(int id, this.name, this.tags, this.stopTime, this.totalSeconds, this.startDate, this.startDateTime) {
     idsWithin.add(id);
     totalTime = durationToString(totalSeconds);
     fullName = '$name $tags';
