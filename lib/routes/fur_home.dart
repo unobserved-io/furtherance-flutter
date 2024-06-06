@@ -497,10 +497,10 @@ class _FurHomeState extends State<FurHome> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return Dialog(
+        return const Dialog(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: const [
+            children: [
               SizedBox(height: 10.0,),
               CircularProgressIndicator(),
               SizedBox(height: 10.0,),

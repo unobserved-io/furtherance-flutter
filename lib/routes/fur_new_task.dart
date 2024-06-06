@@ -247,10 +247,10 @@ class _FurNewTaskState extends State<FurNewTask> {
                 textColor: Colors.white,
                 shape: const RoundedRectangleBorder(borderRadius:BorderRadius.all(Radius.elliptical(10, 10))),
                 height: 50.0,
-                child: Row(
+                child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.max,
-                  children: const [
+                  children: [
                     Icon(
                       Icons.save,
                       size: 25.0,
